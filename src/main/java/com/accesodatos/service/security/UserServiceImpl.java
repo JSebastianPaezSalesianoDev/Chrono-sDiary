@@ -1,0 +1,118 @@
+package com.accesodatos.service.security;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import com.accesodatos.dto.security.RoleResponseDto;
+import com.accesodatos.dto.security.UserRequestDto;
+import com.accesodatos.dto.security.UserResponseDto;
+import com.accesodatos.entity.Role;
+import com.accesodatos.entity.UserEntity;
+import com.accesodatos.exception.ResourceNotFoundException;
+import com.accesodatos.mapper.security.RoleMapper;
+import com.accesodatos.mapper.security.UserMapper;
+import com.accesodatos.repository.security.RoleRepository;
+import com.accesodatos.repository.security.UserRepository;
+
+@Service
+public class UserServiceImpl implements UserService {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private UserMapper userMapper;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    @Autowired
+    private RoleRepository roleRepository; 
+
+    @Autowired
+    private RoleMapper roleMapper; 
+
+    @Override
+    public UserResponseDto createUser(UserRequestDto userRequestDto) {
+        UserEntity user = userMapper.toUser(userRequestDto);
+        user.setPassword(passwordEncoder.encode(userRequestDto.getPassword()));
+
+        Set<Role> roles = new HashSet<>();
+        if (userRequestDto.getRoleIds() != null) {
+            for (Long roleId : userRequestDto.getRoleIds()) {
+                Role role = roleRepository.findById(roleId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Role not found with id: " + roleId));
+                roles.add(role);
+            }
+        }
+        user.setRoles(roles); 
+
+        UserEntity savedUser = userRepository.save(user);
+        return mapUserEntityToDtoWithRoles(savedUser); 
+    }
+
+    @Override
+    public UserResponseDto getUserById(Long userId) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User with id: " + userId + " not found"));
+        return mapUserEntityToDtoWithRoles(user);
+    }
+
+    @Override
+    public List<UserResponseDto> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(this::mapUserEntityToDtoWithRoles) 
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public UserResponseDto updateUser(Long userId, UserRequestDto userRequestDto) {
+        UserEntity existingUser = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User with id: " + userId + " not found"));
+
+        UserEntity updatedUser = userMapper.toUser(userRequestDto); 
+        existingUser.setUsername(updatedUser.getUsername());
+        if (userRequestDto.getPassword() != null && !userRequestDto.getPassword().isEmpty()) {
+            existingUser.setPassword(passwordEncoder.encode(userRequestDto.getPassword()));
+        }
+        existingUser.setEnabled(updatedUser.isEnabled());
+        existingUser.setAccountNoExpired(updatedUser.isAccountNoExpired());
+        existingUser.setAccountNoLocked(updatedUser.isAccountNoLocked());
+        existingUser.setCredentialNoExpired(updatedUser.isCredentialNoExpired());
+
+
+        if (userRequestDto.getRoleIds() != null) {
+            Set<Role> updatedRoles = new HashSet<>();
+            for (Long roleId : userRequestDto.getRoleIds()) {
+                Role role = roleRepository.findById(roleId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Role not found with id: " + roleId));
+                updatedRoles.add(role);
+            }
+            existingUser.setRoles(updatedRoles); 
+        }
+
+        UserEntity savedUser = userRepository.save(existingUser);
+        return mapUserEntityToDtoWithRoles(savedUser);
+    }
+
+    @Override
+    public void deleteUser(Long userId) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User with id: " + userId + " not found"));
+        userRepository.delete(user);
+    }
+    
+    private UserResponseDto mapUserEntityToDtoWithRoles(UserEntity userEntity) {
+        UserResponseDto userResponseDto = userMapper.toUserResponse(userEntity);
+        if (userEntity.getRoles() != null) {
+            Set<RoleResponseDto> roleResponseDtos = userEntity.getRoles().stream()
+                    .map(roleMapper::toRoleResponseDto)
+                    .collect(Collectors.toSet());
+            userResponseDto.setRoles(roleResponseDtos);
+        }
+        return userResponseDto;
+    }
+}
