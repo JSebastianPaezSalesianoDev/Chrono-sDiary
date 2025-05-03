@@ -37,6 +37,9 @@ public class UserEntity {
 	@Column(unique = true)
 	private String username;
 	
+	@Column(name = "email", unique = true, nullable = false, length = 100) 
+	private String email; 
+	
 	@Column(nullable = false)
 	private String password;
 	
