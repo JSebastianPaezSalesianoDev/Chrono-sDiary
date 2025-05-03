@@ -47,7 +47,7 @@ public class Event {
 	@Column(name = "end_time")
 	private Date endTime;
 	
-	@Column(length = 30)
+	@Column(length = 100)
 	private String location;
 	
 	@OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -55,10 +55,23 @@ public class Event {
 	private List<Invitation> invitations = new ArrayList<>();
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id")
+	@JoinColumn(name = "user_id", nullable = false)
 	@JsonBackReference
 	private UserEntity creator;
 	
-	
+	public void addInvitation(Invitation invitation) {
+		if (invitations == null) {
+			invitations = new ArrayList<>();
+		}
+		invitations.add(invitation);
+		invitation.setEvent(this); 
+	}
+
+	public void removeInvitation(Invitation invitation) {
+		if (invitations != null) {
+			invitations.remove(invitation);
+		}
+		invitation.setEvent(null); 
+	}
 	
 }

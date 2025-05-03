@@ -2,6 +2,8 @@
 <section name="Workbench">
 	<section name="MavenProjectImportWizardPage">
 		<list key="rootDirectory">
+			<item value="D:\Programming\SpringBootJava\Chrono-sDiary"/>
+			<item value="D:\Programming\SpringBootJava\Chrono&apos;sDiary\Chrono-sDiary"/>
 			<item value="C:\Users\juand\Downloads\fp\java\ChronosDairyProyect\Chrono&apos;sDiary"/>
 		</list>
 		<list key="projectNameTemplate">

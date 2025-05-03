@@ -2,13 +2,9 @@ package com.accesodatos.entity;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -41,6 +37,7 @@ public class UserEntity {
 	@Column(unique = true)
 	private String username;
 	
+	@Column(nullable = false)
 	private String password;
 	
 	@Column(name = "is_enabled")
@@ -55,14 +52,10 @@ public class UserEntity {
 	@Column(name = "credential_no_expired")
 	private boolean credentialNoExpired;
 	
-	@ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-	@JoinTable(
-	            name = "user_invitations_table",
-	            joinColumns = @JoinColumn(name = "fk_user_id"),
-	            inverseJoinColumns = @JoinColumn(name = "fk_invitation_id")
-	    )
-	@JsonBackReference
-	private Set<Invitation> invitations = new LinkedHashSet<>();
+	@OneToMany(mappedBy = "invitee", cascade = CascadeType.ALL, orphanRemoval = true)
+	@JsonManagedReference
+	@Builder.Default
+	private Set<Invitation> invitationsReceived = new HashSet<>(); 
 	
 	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	@JoinTable(name = "user_roles", joinColumns = @JoinColumn(name ="user_id"),
@@ -72,8 +65,37 @@ public class UserEntity {
 	
 	@OneToMany(mappedBy = "creator", cascade = CascadeType.ALL, orphanRemoval = true)
 	@JsonManagedReference
+	@Builder.Default	
 	private List<Event> events = new ArrayList<>();
 	
-	
+	public void addEventCreated(Event event) {
+		if (events == null) {
+			events = new ArrayList<>();
+		}
+		events.add(event);
+		event.setCreator(this); 
+	}
+
+	public void removeEventCreated(Event event) {
+		if (events != null) {
+			events.remove(event);
+		}
+		event.setCreator(null);
+	}
+
+	public void addInvitationReceived(Invitation invitation) {
+		if (invitationsReceived == null) {
+			invitationsReceived = new HashSet<>();
+		}
+		invitationsReceived.add(invitation);
+		invitation.setInvitee(this); 
+	}
+
+	public void removeInvitationReceived(Invitation invitation) {
+		if (invitationsReceived != null) {
+			invitationsReceived.remove(invitation);
+		}
+		invitation.setInvitee(null);
+	}
 	
 }
