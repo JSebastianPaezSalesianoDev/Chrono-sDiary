@@ -12,6 +12,7 @@ public class EventRequestDto {
 	private String title;
 	private Date startTime;
 	private Date endTime;
-	 private List<String> invitedUserEmails;
+	private List<String> invitedUserEmails;
 	private String location;
+	private String description;
 }

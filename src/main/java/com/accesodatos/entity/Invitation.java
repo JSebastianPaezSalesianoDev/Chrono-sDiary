@@ -33,7 +33,7 @@ public class Invitation {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "event_id", nullable = false)
 	@JsonBackReference
-	private Event event;
+	private EventEntity event;
 
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

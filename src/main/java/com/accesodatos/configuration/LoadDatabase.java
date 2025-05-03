@@ -21,22 +21,22 @@
 //			
 //			Role roleUser = Role.builder().name("USER").build();
 //
-//			UserEntity userAlex = UserEntity.builder().username("Alexis")
+//			UserEntity userAlex = UserEntity.builder().username("Alexis").email("ejemplito@gmail.com")
 //					.password("$2a$10$3S84.aE5GAxLMeXyDUFkruNnoQVE/UOM6iY35vtwirheoBfl7B9qC").isEnabled(true)
 //					.accountNoExpired(true).accountNoLocked(true).credentialNoExpired(true).roles(Set.of(roleAdmin))
 //					.build();
 //
-//			UserEntity userJose = UserEntity.builder().username("Jose")
+//			UserEntity userJose = UserEntity.builder().username("Jose").email("ejemplito2@gmail.com")
 //					.password("$2a$10$3S84.aE5GAxLMeXyDUFkruNnoQVE/UOM6iY35vtwirheoBfl7B9qC").isEnabled(true)
 //					.accountNoExpired(true).accountNoLocked(true).credentialNoExpired(true).roles(Set.of(roleUser))
 //					.build();
 //
-//			UserEntity userPepe = UserEntity.builder().username("Pepe")
+//			UserEntity userPepe = UserEntity.builder().username("Pepe").email("ejemplito3@gmail.com")
 //					.password("$2a$10$3S84.aE5GAxLMeXyDUFkruNnoQVE/UOM6iY35vtwirheoBfl7B9qC").isEnabled(true)
 //					.accountNoExpired(true).accountNoLocked(true).credentialNoExpired(true).roles(Set.of(roleUser))
 //					.build();
 //
-//			UserEntity userIsrael = UserEntity.builder().username("Israel")
+//			UserEntity userIsrael = UserEntity.builder().username("Israel").email("ejemplito4@gmail.com")
 //					.password("$2a$10$3S84.aE5GAxLMeXyDUFkruNnoQVE/UOM6iY35vtwirheoBfl7B9qC").isEnabled(true)
 //					.accountNoExpired(true).accountNoLocked(true).credentialNoExpired(true).roles(Set.of(roleUser))
 //					.build();

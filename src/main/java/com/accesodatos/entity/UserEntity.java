@@ -69,9 +69,9 @@ public class UserEntity {
 	@OneToMany(mappedBy = "creator", cascade = CascadeType.ALL, orphanRemoval = true)
 	@JsonManagedReference
 	@Builder.Default	
-	private List<Event> events = new ArrayList<>();
+	private List<EventEntity> events = new ArrayList<>();
 	
-	public void addEventCreated(Event event) {
+	public void addEventCreated(EventEntity event) {
 		if (events == null) {
 			events = new ArrayList<>();
 		}
@@ -79,7 +79,7 @@ public class UserEntity {
 		event.setCreator(this); 
 	}
 
-	public void removeEventCreated(Event event) {
+	public void removeEventCreated(EventEntity event) {
 		if (events != null) {
 			events.remove(event);
 		}
