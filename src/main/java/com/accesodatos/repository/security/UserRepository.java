@@ -11,4 +11,5 @@ import com.accesodatos.entity.UserEntity;
 public interface UserRepository  extends JpaRepository<UserEntity, Long>{
 
 	Optional<UserEntity> findUserEntityByUsername(String name);
+	Optional<UserEntity> findUserEntityByEmail(String email);
 }
