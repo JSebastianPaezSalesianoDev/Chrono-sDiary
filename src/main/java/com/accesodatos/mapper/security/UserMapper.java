@@ -3,6 +3,7 @@ package com.accesodatos.mapper.security;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import com.accesodatos.dto.security.UserEventsResponse;
 import com.accesodatos.dto.security.UserRequestDto;
 import com.accesodatos.dto.security.UserResponseDto;
 import com.accesodatos.entity.UserEntity;
@@ -16,4 +17,5 @@ public interface UserMapper {
     UserEntity toUser(UserRequestDto userRequestDto);
 
     UserResponseDto toUserResponse(UserEntity user);
+    UserEventsResponse toUserEventsResponse(UserEntity user);
 }

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.accesodatos.dto.security.RoleResponseDto;
+import com.accesodatos.dto.security.UserEventsResponse;
 import com.accesodatos.dto.security.UserRequestDto;
 import com.accesodatos.dto.security.UserResponseDto;
 import com.accesodatos.entity.Role;
@@ -115,4 +116,12 @@ public class UserServiceImpl implements UserService {
         }
         return userResponseDto;
     }
+
+	@Override
+	public List<UserEventsResponse> getUserEvents() {
+		return userRepository.findAll().stream()
+				.map(userMapper::toUserEventsResponse).collect(Collectors.toList());
+	}
+
+
 }

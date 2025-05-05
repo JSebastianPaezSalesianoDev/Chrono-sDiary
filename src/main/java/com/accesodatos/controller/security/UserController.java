@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.accesodatos.dto.apiDto.ApiResponseDto;
+import com.accesodatos.dto.security.UserEventsResponse;
 import com.accesodatos.dto.security.UserRequestDto;
 import com.accesodatos.dto.security.UserResponseDto;
 import com.accesodatos.service.security.UserService;
@@ -25,7 +26,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/v1/users")
+@RequestMapping("/api/users")
 @Tag(name = "User", description = "Controller for managing users")
 public class UserController {
 
@@ -76,4 +77,14 @@ public class UserController {
         ApiResponseDto<Void> response = new ApiResponseDto<>("User deleted successfully", HttpStatus.NO_CONTENT.value(), null);
         return new ResponseEntity<>(response, HttpStatus.NO_CONTENT);
     }
+    
+    
+    @GetMapping(value = "/event",produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Get all events")
+    public ResponseEntity<ApiResponseDto<List<UserEventsResponse>>> getUserEvents() {
+        List<UserEventsResponse> events = userService.getUserEvents();
+        ApiResponseDto<List<UserEventsResponse>> response = new ApiResponseDto<>("User's events fetched successfully", HttpStatus.OK.value(), events);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
 }
