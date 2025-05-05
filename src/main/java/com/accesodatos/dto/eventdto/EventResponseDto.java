@@ -1,4 +1,4 @@
-package com.accesodatos.dto.security;
+package com.accesodatos.dto.eventdto;
 
 import java.util.Date;
 

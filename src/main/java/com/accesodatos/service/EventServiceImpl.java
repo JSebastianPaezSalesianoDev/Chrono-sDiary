@@ -11,10 +11,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.accesodatos.dto.eventdto.EventRequestDto;
-import com.accesodatos.dto.security.EventResponseDto;
+import com.accesodatos.dto.eventdto.EventResponseDto;
+import com.accesodatos.dto.eventdto.EventSimpleResponseDto;
 import com.accesodatos.entity.EventEntity;
 import com.accesodatos.entity.Invitation;
 import com.accesodatos.entity.UserEntity;
+import com.accesodatos.exception.ResourceNotFoundException;
 import com.accesodatos.mapper.event.EventMapper;
 import com.accesodatos.repository.EventRepository;
 import com.accesodatos.repository.InvitationRepository;
@@ -88,4 +90,13 @@ public class EventServiceImpl implements EventService {
 
         return eventMapper.toEventResponse(savedEvent);
     }
+
+	@Override
+	public List<EventSimpleResponseDto> getAllSimpleEventsByUserId(Long id) {
+		
+		UserEntity user = userRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException(String.format("User not found", id)));
+		
+		return user.getEvents().stream().map(eventMapper::toEventSimpleResponse).toList();
+	}
 }

@@ -5,7 +5,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import com.accesodatos.dto.eventdto.EventRequestDto;
-import com.accesodatos.dto.security.EventResponseDto;
+import com.accesodatos.dto.eventdto.EventResponseDto;
+import com.accesodatos.dto.eventdto.EventSimpleResponseDto;
 import com.accesodatos.entity.EventEntity;
 
 @Mapper(componentModel = "spring")
@@ -16,4 +17,6 @@ public interface EventMapper {
 	EventEntity toEvent(EventRequestDto eventRequestDto);
 	
 	EventResponseDto toEventResponse(EventEntity eventEntity);
+	
+	EventSimpleResponseDto toEventSimpleResponse(EventEntity eventEntity);
 }
