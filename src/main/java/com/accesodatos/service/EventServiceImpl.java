@@ -99,4 +99,12 @@ public class EventServiceImpl implements EventService {
 		
 		return user.getEvents().stream().map(eventMapper::toEventSimpleResponse).toList();
 	}
+
+	@Override
+	public void deleteEvent(Long id) {
+		EventEntity event = eventRepository.findById(id)
+		.orElseThrow(() -> new ResourceNotFoundException(String.format("Event not found, id:", id)));
+		
+		eventRepository.delete(event);
+	}
 }
