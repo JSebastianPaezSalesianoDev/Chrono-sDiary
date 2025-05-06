@@ -107,4 +107,19 @@ public class EventServiceImpl implements EventService {
 		
 		eventRepository.delete(event);
 	}
+
+	@Override
+	public EventResponseDto updateEvent(Long id, EventRequestDto eventRequestDto) {
+		EventEntity event = eventRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException(String.format("Event not found, id:", id)));
+		event.setTitle(eventRequestDto.getTitle());
+		event.setDescription(eventRequestDto.getDescription());
+		event.setStartTime(eventRequestDto.getStartTime());
+		event.setEndTime(eventRequestDto.getEndTime());
+		event.setLocation(eventRequestDto.getLocation());
+		
+		EventEntity updatedEvent = eventRepository.save(event);
+		
+		return eventMapper.toEventResponse(updatedEvent);
+	}
 }
