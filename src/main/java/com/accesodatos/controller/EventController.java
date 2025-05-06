@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -60,5 +61,14 @@ public class EventController {
 		eventServiceImpl.deleteEvent(id);
 		
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+	
+	@PutMapping(value = EVENT_USER, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<ApiResponseDto<EventResponseDto>> updateEvent(@PathVariable Long id,
+			@Valid @RequestBody EventRequestDto eventRequestDto) {
+		EventResponseDto eventUpdated  = eventServiceImpl.updateEvent(id, eventRequestDto);
+		ApiResponseDto<EventResponseDto> response = new ApiResponseDto<>("Event updated successfully",
+				HttpStatus.OK.value(), eventUpdated);
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 }
