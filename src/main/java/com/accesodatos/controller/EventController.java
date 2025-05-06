@@ -3,7 +3,7 @@ package com.accesodatos.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -53,5 +53,12 @@ public class EventController {
 		ApiResponseDto<List<EventSimpleResponseDto>> response = new ApiResponseDto<>("events fetched successfully", 
 											HttpStatus.OK.value(), events);
 		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+	
+	@DeleteMapping(value = EVENT_USER)
+	public ResponseEntity<Void> deleteEvent(@PathVariable Long id){
+		eventServiceImpl.deleteEvent(id);
+		
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 }
