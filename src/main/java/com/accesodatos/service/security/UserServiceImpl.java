@@ -49,7 +49,12 @@ public class UserServiceImpl implements UserService {
                 roles.add(role);
             }
         }
+        Role defaultRole = roleRepository.findByName("USER").orElseThrow(() -> new ResourceNotFoundException("Default role 'USER' not found in database. Please ensure it exists."));
+        roles.add(defaultRole);
+
         user.setRoles(roles); 
+
+
 
         UserEntity savedUser = userRepository.save(user);
         return mapUserEntityToDtoWithRoles(savedUser); 
