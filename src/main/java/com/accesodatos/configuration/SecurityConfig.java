@@ -50,9 +50,12 @@ public class SecurityConfig {
 				.requestMatchers(HttpMethod.DELETE, "/api/v1/**").hasRole("ADMIN") 
 				.requestMatchers("/api/v1/users/**").hasRole("ADMIN")
 				.requestMatchers("/api/v1/roles/**").hasRole("ADMIN")
+				.requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+				.requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()
 				.requestMatchers(HttpMethod.POST, "/api/users").permitAll() 
 				.anyRequest().authenticated()
-				)
+				)																		
+
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
 				.httpBasic(Customizer.withDefaults()) 

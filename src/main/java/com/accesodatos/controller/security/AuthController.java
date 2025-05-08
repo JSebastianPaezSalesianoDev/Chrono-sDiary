@@ -3,6 +3,7 @@ package com.accesodatos.controller.security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,9 +14,9 @@ import com.accesodatos.dto.security.AuthLoginRequestDto;
 import com.accesodatos.dto.security.AuthResponseDto;
 import com.accesodatos.service.security.UserDetailsServiceImpl;
 
-
+@CrossOrigin(origins = "http://localhost:5173/")
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/api/auth")
 public class AuthController {
 
 	@Autowired
