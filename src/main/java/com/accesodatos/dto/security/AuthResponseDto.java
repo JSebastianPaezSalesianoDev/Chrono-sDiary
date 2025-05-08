@@ -1,16 +1,19 @@
 package com.accesodatos.dto.security;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
-public class AuthResponseDto {
+@AllArgsConstructor
 
+
+public class AuthResponseDto {
+	private Long id;
 	private String accessToken;
 	private String tokenType = "Bearer ";
 	
-	public AuthResponseDto(String accessToken) {
+	/*public AuthResponseDto(String accessToken, Long id) {
 		this.accessToken = accessToken;
-	}
+	}*/
 }
