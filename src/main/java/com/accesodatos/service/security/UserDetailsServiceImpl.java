@@ -81,9 +81,16 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 		
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		
+		  String username = authLoginRequest.getUsername();
+		  
+		  UserEntity userEntity = userRepository.findUserEntityByUsername(username)
+                  .orElseThrow(() -> new ResourceNotFoundException("User not found after authentication: " + username));
+		  
+		  Long userId = userEntity.getId();
+		
 		String accessToken = jwtTokenProvider.generateToken(authentication);
 		
-		return new AuthResponseDto(accessToken);
+		 return new AuthResponseDto(userId, accessToken, username);
 	}
 	
 }
