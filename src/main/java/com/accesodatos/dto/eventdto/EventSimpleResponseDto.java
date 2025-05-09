@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor	
 public class EventSimpleResponseDto {
+	private Long id;
 	private String title;
 	private Date startTime;
 	private Date endTime;

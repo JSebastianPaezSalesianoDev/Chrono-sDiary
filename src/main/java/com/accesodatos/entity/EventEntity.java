@@ -21,10 +21,16 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-@Data
+import lombok.Setter;
+import lombok.ToString;
+@Getter
+@Setter
 @NoArgsConstructor
+@EqualsAndHashCode(of = "id") 
+@ToString(exclude = {"invitations", "creator"})
 @Entity
 @Table(name = "Events")
 public class EventEntity {

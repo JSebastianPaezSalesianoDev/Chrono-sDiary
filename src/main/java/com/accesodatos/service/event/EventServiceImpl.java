@@ -1,4 +1,4 @@
-package com.accesodatos.service;
+package com.accesodatos.service.event;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,8 +18,8 @@ import com.accesodatos.entity.Invitation;
 import com.accesodatos.entity.UserEntity;
 import com.accesodatos.exception.ResourceNotFoundException;
 import com.accesodatos.mapper.event.EventMapper;
-import com.accesodatos.repository.EventRepository;
-import com.accesodatos.repository.InvitationRepository;
+import com.accesodatos.repository.event.EventRepository;
+import com.accesodatos.repository.invitation.InvitationRepository;
 import com.accesodatos.repository.security.UserRepository;
 
 @Service

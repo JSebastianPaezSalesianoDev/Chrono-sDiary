@@ -1,4 +1,4 @@
-package com.accesodatos.controller;
+package com.accesodatos.controller.event;
 
 import java.util.List;
 
@@ -19,7 +19,8 @@ import com.accesodatos.dto.apiDto.ApiResponseDto;
 import com.accesodatos.dto.eventdto.EventRequestDto;
 import com.accesodatos.dto.eventdto.EventResponseDto;
 import com.accesodatos.dto.eventdto.EventSimpleResponseDto;
-import com.accesodatos.service.EventServiceImpl;
+import com.accesodatos.service.event.EventServiceImpl;
+
 import org.springframework.http.HttpStatus;
 import jakarta.validation.Valid;
 
