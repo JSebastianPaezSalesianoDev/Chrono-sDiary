@@ -123,9 +123,9 @@ public class EventServiceImpl implements EventService {
 		return eventMapper.toEventResponse(updatedEvent);
 	}
 	@Override
-    public EventResponseDto getEventById(Long eventId) {
+    public EventSimpleResponseDto getEventById(Long eventId) {
         EventEntity event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException("Event with id: " + eventId + " not found"));
-        return eventMapper.toEventResponse(event);
+        return eventMapper.toEventSimpleResponse(event);
     }
 }
