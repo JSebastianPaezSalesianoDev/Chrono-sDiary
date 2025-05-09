@@ -11,4 +11,5 @@ public interface EventService {
 	List<EventSimpleResponseDto> getAllSimpleEventsByUserId(Long id);
 	void deleteEvent(Long id);
 	EventResponseDto updateEvent(Long id, EventRequestDto eventRequestDto);
+	EventResponseDto getEventById(Long eventId);
 }

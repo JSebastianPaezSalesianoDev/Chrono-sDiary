@@ -32,6 +32,7 @@ public class EventController {
 	private static final String  EVENT_RESOURCE = "/event";
 	
 	private static final String EVENT_USER = EVENT_RESOURCE + "/{id}";
+	
 
 	
 	@Autowired
@@ -40,6 +41,14 @@ public class EventController {
 	@GetMapping(EVENT_RESOURCE + "/ping")
 	public ResponseEntity<String> pong() {
 		return ResponseEntity.ok("pong event...");
+	}
+	
+	@GetMapping(value = EVENT_USER, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<ApiResponseDto<EventResponseDto>> getEventById(@PathVariable Long id){
+		EventResponseDto event = eventServiceImpl.getEventById(id);
+		ApiResponseDto<EventResponseDto> response = new ApiResponseDto<>("Event fetched successfully", 
+											HttpStatus.OK.value(), event);
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 	
 	@PostMapping(value = EVENT_RESOURCE, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
