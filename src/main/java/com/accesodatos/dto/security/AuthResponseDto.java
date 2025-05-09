@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 public class AuthResponseDto {
 	private Long id;
 	private String accessToken;
-	private String tokenType = "Bearer ";
+	private String username;
 	
 	/*public AuthResponseDto(String accessToken, Long id) {
 		this.accessToken = accessToken;
