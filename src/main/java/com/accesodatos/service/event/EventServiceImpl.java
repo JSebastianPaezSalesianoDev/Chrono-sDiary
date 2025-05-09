@@ -92,12 +92,12 @@ public class EventServiceImpl implements EventService {
     }
 
 	@Override
-	public List<EventSimpleResponseDto> getAllSimpleEventsByUserId(Long id) {
+	public List<EventResponseDto> getAllSimpleEventsByUserId(Long id) {
 		
 		UserEntity user = userRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException(String.format("User not found", id)));
 		
-		return user.getEvents().stream().map(eventMapper::toEventSimpleResponse).toList();
+		return user.getEvents().stream().map(eventMapper::toEventResponse).toList();
 	}
 
 	@Override

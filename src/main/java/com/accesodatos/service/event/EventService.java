@@ -8,7 +8,7 @@ import com.accesodatos.dto.eventdto.EventSimpleResponseDto;
 
 public interface EventService {
 	EventResponseDto createEvent(EventRequestDto eventRequestDto);
-	List<EventSimpleResponseDto> getAllSimpleEventsByUserId(Long id);
+	List<EventResponseDto> getAllSimpleEventsByUserId(Long id);
 	void deleteEvent(Long id);
 	EventResponseDto updateEvent(Long id, EventRequestDto eventRequestDto);
 	EventResponseDto getEventById(Long eventId);

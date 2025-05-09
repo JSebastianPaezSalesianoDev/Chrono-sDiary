@@ -61,9 +61,9 @@ public class EventController {
 	}
 	
 	@GetMapping(value = EVENT_USER + "/event", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<ApiResponseDto<List<EventSimpleResponseDto>>> getEventByUserId(@PathVariable Long id){
-		List<EventSimpleResponseDto> events = eventServiceImpl.getAllSimpleEventsByUserId(id);
-		ApiResponseDto<List<EventSimpleResponseDto>> response = new ApiResponseDto<>("events fetched successfully", 
+	public ResponseEntity<ApiResponseDto<List<EventResponseDto>>> getEventByUserId(@PathVariable Long id){
+		List<EventResponseDto> events = eventServiceImpl.getAllSimpleEventsByUserId(id);
+		ApiResponseDto<List<EventResponseDto>> response = new ApiResponseDto<>("events fetched successfully", 
 											HttpStatus.OK.value(), events);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
