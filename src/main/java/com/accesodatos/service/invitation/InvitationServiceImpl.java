@@ -1,6 +1,7 @@
 package com.accesodatos.service.invitation;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -71,7 +72,22 @@ public class InvitationServiceImpl implements InvitationService {
             .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         return user.getInvitationsReceived()
             .stream()
-            .map(mapper::toResponseDto)
-            .toList();
+            .map(invitation -> {
+                EventEntity event = invitation.getEvent(); 
+                UserEntity invitingUser = event.getCreator(); 
+
+                return new InvitationResponseDto(
+                    invitation.getId(),
+                    event.getId(),
+                    event.getTitle(),
+                    invitingUser.getId(),
+                    invitingUser.getUsername(),
+                    user.getId(), 
+                    invitation.getStatus(),
+                    invitation.getCreationDate()
+                );
+            
+            })
+            .collect(Collectors.toList());
     }
 }

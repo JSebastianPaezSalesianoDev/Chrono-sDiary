@@ -14,6 +14,9 @@ import com.accesodatos.dto.invitation.InvitationResponseDto;
 import com.accesodatos.service.invitation.InvitationServiceImpl;
 
 import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
 @RequestMapping("/api/invitation")
@@ -48,4 +51,10 @@ public class InvitationController {
         List<InvitationResponseDto> invitations = invitationService.getAllInvitationsByUserId(userId);
         return new ResponseEntity<>(new ApiResponseDto<>("Invitations fetched", HttpStatus.OK.value(), invitations), HttpStatus.OK);
     }
+    
+    
+    
+    
+    
+    
 }
