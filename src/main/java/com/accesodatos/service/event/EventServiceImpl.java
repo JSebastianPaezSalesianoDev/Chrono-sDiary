@@ -1,7 +1,11 @@
 package com.accesodatos.service.event;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -42,6 +46,7 @@ public class EventServiceImpl implements EventService {
     public EventResponseDto createEvent(EventRequestDto eventRequestDto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUsername = null;
+
         if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
             currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
         } else if (authentication != null && authentication.getPrincipal() instanceof String) {
@@ -49,56 +54,75 @@ public class EventServiceImpl implements EventService {
         }
 
         if (currentUsername == null) {
-            throw new RuntimeException("Usuario no autenticado");
+            throw new RuntimeException("Usuario no autenticado. No se puede crear el evento.");
         }
 
-        Optional<UserEntity> creatorOptional = userRepository.findUserEntityByUsername(currentUsername);
-        if (!creatorOptional.isPresent()) {
-            throw new RuntimeException("Usuario creador no encontrado en la base de datos");
-        }
-        UserEntity creator = creatorOptional.get();
+        UserEntity creator = userRepository.findUserEntityByUsername(currentUsername)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario creador no encontrado en la base de datos."));
 
-        EventEntity event = eventMapper.toEvent(eventRequestDto);
+        EventEntity event = eventMapper.toEvent(eventRequestDto); 
 
-        event.setCreator(creator);
-        creator.addEventCreated(event);
+        event.setCreator(creator); 
+        creator.addEventCreated(event); 
 
         List<String> invitedEmails = eventRequestDto.getInvitedUserEmails();
         if (invitedEmails != null && !invitedEmails.isEmpty()) {
             for (String email : invitedEmails) {
-                Optional<UserEntity> inviteeOptional = userRepository.findUserEntityByEmail(email);
+                if (email == null || email.trim().isEmpty()) {
+                    System.out.println("No hay emails");
+                    continue;
+                }
+
+                Optional<UserEntity> inviteeOptional = userRepository.findUserEntityByEmail(email.trim());
 
                 if (inviteeOptional.isPresent()) {
                     UserEntity invitee = inviteeOptional.get();
 
-                    if (!invitee.getId().equals(creator.getId())) {
-                        Invitation invitation = new Invitation();
-                        invitation.setEvent(event);
-                        invitation.setInvitee(invitee);
-                        invitation.setStatus("PENDING");
-
-                        event.addInvitation(invitation);
-                        invitee.addInvitationReceived(invitation);
+                   
+                    if (invitee.getId().equals(creator.getId())) {
+                        System.out.println("INFO: El creador del evento (" + creator.getUsername() + ") intentó invitarse a sí mismo. Omitiendo invitación duplicada por esta vía.");
+                        continue;
                     }
+
+                    Invitation invitation = new Invitation();
+                    invitation.setStatus("PENDING"); 
+
+                    event.addInvitation(invitation);       
+                    invitee.addInvitationReceived(invitation); 
+                    
+                    userRepository.save(invitee); 
                 } else {
-                    System.out.println("WARN: Correo de invitado no encontrado: " + email);
+                    System.out.println("Usuario con email '" + email.trim() + "' para invitación no encontrado");
                 }
             }
         }
 
         EventEntity savedEvent = eventRepository.save(event);
-
+        
+  
         return eventMapper.toEventResponse(savedEvent);
     }
-
 	@Override
-	public List<EventResponseDto> getAllSimpleEventsByUserId(Long id) {
-		
-		UserEntity user = userRepository.findById(id)
-				.orElseThrow(() -> new ResourceNotFoundException(String.format("User not found", id)));
-		
-		return user.getEvents().stream().map(eventMapper::toEventResponse).toList();
-	}
+	public List<EventResponseDto> getAllSimpleEventsByUserId(Long userId) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("User with id "+ userId +" not found")));
+
+        List<EventEntity> createdEvents = new ArrayList<>(user.getEvents()); 
+
+  
+        List<EventEntity> acceptedInvitedEvents = user.getInvitationsReceived().stream()
+                .filter(invitation -> "ACCEPTED".equalsIgnoreCase(invitation.getStatus()))
+                .map(Invitation::getEvent) 
+                .collect(Collectors.toList());
+
+        
+        Set<EventEntity> allAssociatedEventsSet = new HashSet<>(createdEvents);
+        allAssociatedEventsSet.addAll(acceptedInvitedEvents);
+
+        return allAssociatedEventsSet.stream()
+                .map(eventMapper::toEventResponse) 
+                .collect(Collectors.toList());
+    }
 
 	@Override
 	public void deleteEvent(Long id) {
