@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.accesodatos.dto.apiDto.ApiResponseDto;
+import com.accesodatos.dto.security.PasswordResetRequest;
 import com.accesodatos.dto.security.UserEventsResponse;
 import com.accesodatos.dto.security.UserRequestDto;
 import com.accesodatos.dto.security.UserResponseDto;
@@ -89,5 +90,20 @@ public class UserController {
         ApiResponseDto<List<UserEventsResponse>> response = new ApiResponseDto<>("User's events fetched successfully", HttpStatus.OK.value(), events);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+    
+    @PostMapping(value = "/reset-password", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Request password reset for a user via email")
+    public ResponseEntity<ApiResponseDto<Void>> requestPasswordReset(
+            @Valid @RequestBody PasswordResetRequest request) {
 
+        if (request == null || request.getEmail() == null || request.getEmail().trim().isEmpty()) {
+             ApiResponseDto<Void> response = new ApiResponseDto<>("El correo electrónico es requerido para restablecer la contraseña.", HttpStatus.BAD_REQUEST.value(), null);
+             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+
+        userService.resetPassword(request.getEmail());
+        ApiResponseDto<Void> response = new ApiResponseDto<>("Si tu correo electrónico está registrado, recibirás un correo con instrucciones.", HttpStatus.OK.value(), null);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+
+    }
 }

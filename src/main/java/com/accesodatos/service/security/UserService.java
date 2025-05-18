@@ -13,4 +13,5 @@ public interface UserService {
     List<UserEventsResponse> getUserEvents();
     UserResponseDto updateUser(Long userId, UserRequestDto userRequestDto);
     void deleteUser(Long userId);
+    void resetPassword(String email);
 }
