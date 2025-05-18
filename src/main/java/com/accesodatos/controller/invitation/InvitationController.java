@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import com.accesodatos.dto.apiDto.ApiResponseDto;
 import com.accesodatos.dto.invitation.InvitationRequestDto;
 import com.accesodatos.dto.invitation.InvitationResponseDto;
+import com.accesodatos.service.email.EmailServiceImpl;
 import com.accesodatos.service.invitation.InvitationServiceImpl;
 
 import jakarta.validation.Valid;
@@ -25,7 +26,9 @@ public class InvitationController {
 
     @Autowired
     InvitationServiceImpl invitationService;
-
+    @Autowired EmailServiceImpl emailService;
+    
+    
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ApiResponseDto<InvitationResponseDto>> createInvitation(
             @Valid @RequestBody InvitationRequestDto dto) {
@@ -53,7 +56,13 @@ public class InvitationController {
     }
     
     
-    
+    @PostMapping("/send")
+    public String sendEmail(@RequestParam String to,
+                            @RequestParam String subject,
+                            @RequestParam String body) {
+        emailService.sendEmail(to, subject, body);
+        return "Correo enviado exitosamente a " + to;
+    }
     
     
     

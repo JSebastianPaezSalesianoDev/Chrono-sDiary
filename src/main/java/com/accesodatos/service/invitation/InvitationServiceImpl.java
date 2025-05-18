@@ -16,6 +16,7 @@ import com.accesodatos.mapper.invitation.InvitationMapper;
 import com.accesodatos.repository.event.EventRepository;
 import com.accesodatos.repository.invitation.InvitationRepository;
 import com.accesodatos.repository.security.UserRepository;
+import com.accesodatos.service.email.EmailService;
 
 @Service
 public class InvitationServiceImpl implements InvitationService {
@@ -31,6 +32,10 @@ public class InvitationServiceImpl implements InvitationService {
 
     @Autowired
     InvitationMapper mapper;
+    
+    @Autowired
+    private EmailService emailService;
+
 
     @Override
     public InvitationResponseDto createInvitation(InvitationRequestDto dto) {
@@ -42,13 +47,24 @@ public class InvitationServiceImpl implements InvitationService {
         UserEntity user = userRepository.findById(dto.getUserId())
             .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
+        UserEntity creator = event.getCreator(); 
+
         invitation.setEvent(event);
         invitation.setInvitee(user);
         invitation.setStatus(dto.getStatus());
 
         Invitation saved = invitationRepository.save(invitation);
+
+        // Enviar email de invitación
+        String to = user.getEmail(); 
+        String subject = "Invitación a evento: " + event.getTitle();
+        String body = creator.getUsername() + " te ha invitado al evento \"" + event.getTitle() + "\"";
+
+        emailService.sendEmail(to, subject, body);
+
         return mapper.toResponseDto(saved);
     }
+
 
     @Override
     public InvitationResponseDto updateInvitation(Long id, InvitationRequestDto dto) {
