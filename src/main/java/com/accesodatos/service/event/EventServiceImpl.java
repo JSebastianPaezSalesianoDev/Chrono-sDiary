@@ -25,7 +25,7 @@ import com.accesodatos.mapper.event.EventMapper;
 import com.accesodatos.repository.event.EventRepository;
 import com.accesodatos.repository.invitation.InvitationRepository;
 import com.accesodatos.repository.security.UserRepository;
-
+import com.accesodatos.service.email.EmailService;
 @Service
 public class EventServiceImpl implements EventService {
 
@@ -41,6 +41,8 @@ public class EventServiceImpl implements EventService {
     @Autowired
     InvitationRepository invitationRepository;
 
+    @Autowired 
+    private EmailService emailService;
     @Override
     @Transactional
     public EventResponseDto createEvent(EventRequestDto eventRequestDto) {
@@ -60,10 +62,10 @@ public class EventServiceImpl implements EventService {
         UserEntity creator = userRepository.findUserEntityByUsername(currentUsername)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario creador no encontrado en la base de datos."));
 
-        EventEntity event = eventMapper.toEvent(eventRequestDto); 
+        EventEntity event = eventMapper.toEvent(eventRequestDto);
 
-        event.setCreator(creator); 
-        creator.addEventCreated(event); 
+        event.setCreator(creator);
+        creator.addEventCreated(event);
 
         List<String> invitedEmails = eventRequestDto.getInvitedUserEmails();
         if (invitedEmails != null && !invitedEmails.isEmpty()) {
@@ -73,33 +75,48 @@ public class EventServiceImpl implements EventService {
                     continue;
                 }
 
-                Optional<UserEntity> inviteeOptional = userRepository.findUserEntityByEmail(email.trim());
+                String trimmedEmail = email.trim();
+                Optional<UserEntity> inviteeOptional = userRepository.findUserEntityByEmail(trimmedEmail);
 
                 if (inviteeOptional.isPresent()) {
                     UserEntity invitee = inviteeOptional.get();
 
-                   
+      
                     if (invitee.getId().equals(creator.getId())) {
-                        System.out.println("INFO: El creador del evento (" + creator.getUsername() + ") intentó invitarse a sí mismo. Omitiendo invitación duplicada por esta vía.");
+                        System.out.println("INFO: El creador del evento (" + creator.getUsername() + ") intentó invitarse a sí mismo.");
                         continue;
                     }
 
                     Invitation invitation = new Invitation();
-                    invitation.setStatus("PENDING"); 
+                    invitation.setStatus("PENDING");
+                    invitation.setEvent(event); 
+                    invitation.setInvitee(invitee);
 
-                    event.addInvitation(invitation);       
-                    invitee.addInvitationReceived(invitation); 
-                    
-                    userRepository.save(invitee); 
+                    event.addInvitation(invitation);
+                    invitee.addInvitationReceived(invitation);
+
+                    try {
+                        String to = invitee.getEmail();
+                        String subject = "Invitación a evento: " + event.getTitle();
+             
+                        String body = creator.getUsername() + " te ha invitado al evento \"" + event.getTitle() + "\".";
+
+                         emailService.sendEmail(to, subject, body);
+                         System.out.println("INFO: Email de invitación enviado a: " + trimmedEmail);
+                     } catch (Exception e) {
+                         System.err.println("ERROR: No se pudo enviar el email de invitación a " + trimmedEmail + ": " + e.getMessage());
+                                         }
+              
+
+
                 } else {
-                    System.out.println("Usuario con email '" + email.trim() + "' para invitación no encontrado");
+                    System.out.println("Usuario con email '" + trimmedEmail + "' para invitación no encontrado");
                 }
-            }
+            }	
         }
 
         EventEntity savedEvent = eventRepository.save(event);
-        
-  
+
         return eventMapper.toEventResponse(savedEvent);
     }
 	@Override
