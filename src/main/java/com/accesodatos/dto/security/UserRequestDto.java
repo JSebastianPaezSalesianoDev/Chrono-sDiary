@@ -16,7 +16,7 @@ public class UserRequestDto {
     @NotBlank(message = "Email cannot be blank") 
     @Email(message = "Email should be valid")  
     private String email;                         
-    @NotBlank(message = "Password cannot be blank") 
+//    @NotBlank(message = "Password cannot be blank") 
     private String password;
     private boolean isEnabled = true;
     private boolean accountNoExpired = true;
