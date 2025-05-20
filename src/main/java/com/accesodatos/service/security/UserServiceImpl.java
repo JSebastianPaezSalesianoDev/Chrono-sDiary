@@ -133,57 +133,55 @@ public class UserServiceImpl implements UserService {
 				.map(userMapper::toUserEventsResponse).collect(Collectors.toList());
 	}
 
-	 @Override
 	  
-	    public void resetPassword(String email) {
-	        if (email == null || email.trim().isEmpty()) {
-	            System.out.println("email vacio");
-	            return;
-	        }
+	 @Override
+	 public void resetPassword(String email) {
+	     if (email == null || email.trim().isEmpty()) {
+	         return;
+	     }
 
-	        String trimmedEmail = email.trim();
+	     String trimmedEmail = email.trim();
 
-	        Optional<UserEntity> userOptional = userRepository.findUserEntityByEmail(trimmedEmail);
+	     Optional<UserEntity> userOptional = userRepository.findUserEntityByEmail(trimmedEmail);
 
-	      
+	     if (!userOptional.isPresent()) {
+	         System.out.println("INFO: Password reset requested for unknown email: " + trimmedEmail);
+	         return;
+	     }
 
-	        if (!userOptional.isPresent()) {
-	            System.out.println( trimmedEmail);
-	         
-	            return;
-	        }
+	     UserEntity user = userOptional.get();
 
-	        UserEntity user = userOptional.get();
+	     Random random = new Random();
+	     int resetCode = 10000 + random.nextInt(90000);
+	     String resetCodeString = String.valueOf(resetCode);
 
+	     try {
+	         String to = user.getEmail();
+	         String subject = "Chrono's Diary - Código para restablecer contraseña";
 
-	        Random random = new Random();
-	        int resetCode = 10000 + random.nextInt(90000); 
-	        String resetCodeString = String.valueOf(resetCode);
+	         String body = String.format(
+	             "¡Hola %s!\n\n" +
+	             "Has solicitado un código para restablecer tu contraseña en Chrono's Diary.\n\n" +
+	             "Tu código de restablecimiento es: %s\n\n" +
+	             "Por favor, usa este código para completar el proceso. (Nota: La validación y uso de este código NO están implementados en esta versión simple).",
+	             user.getUsername() != null ? user.getUsername() : "Usuario",
+	             resetCodeString
+	         );
 
-	        try {
-	            String to = user.getEmail();
-	            String subject = "Chrono's Diary - Código para restablecer contraseña";
-	            String body = String.format(
-	                "¡Hola %s!\n\n" +
-	                "Has solicitado un código para restablecer tu contraseña en Chrono's Diary.\n\n" +
-	                "Tu código de restablecimiento es: %s\n\n" +
-	                "Por favor, usa este código para completar el proceso. (Nota: La validación y uso de este código NO están implementados en esta versión simple).\n\n" +
-	                user.getUsername() != null ? user.getUsername() : "Usuario", 
-	                resetCodeString
-	                
-	            );
-	            user.setPassword(resetCodeString);
-	            userRepository.save(user); 
-	            emailService.sendEmail(to, subject, body);
-	            System.out.println("INFO: contraseña reseteada a" + trimmedEmail + " codigo: " + resetCodeString); 
+	         user.setPassword(passwordEncoder.encode(resetCodeString));
+	         userRepository.save(user);
 
-	        } catch (Exception e) {
-	         
-	            System.err.println("ERROR:" + trimmedEmail + ": " + e.getMessage());
+	         emailService.sendEmail(to, subject, body);
 
-	        }
+	         System.out.println("INFO: Contraseña reseteada y correo enviado a " + trimmedEmail + " con código: " + resetCodeString);
 
-	    }
+	     } catch (Exception e) {
+	         System.err.println("ERROR: Fallo al procesar o enviar correo de restablecimiento para " + trimmedEmail + ": " + e.getMessage());
+	         throw new RuntimeException("Error processing or sending password reset email", e);
+	     }
+	 }
+
+	    
 
 
 
