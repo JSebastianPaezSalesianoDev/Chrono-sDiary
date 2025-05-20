@@ -89,16 +89,6 @@ public class UserServiceImpl implements UserService {
         if (userRequestDto.getPassword() != null && !userRequestDto.getPassword().isEmpty()) {
             existingUser.setPassword(passwordEncoder.encode(userRequestDto.getPassword()));
         }
-        if (userRequestDto.getEmail() != null && !userRequestDto.getEmail().trim().isEmpty()) {
-            String newEmail = userRequestDto.getEmail().trim();
-            if (!newEmail.equalsIgnoreCase(existingUser.getEmail())) {
-                Optional<UserEntity> userByNewEmail = userRepository.findUserEntityByEmail(newEmail);
-                if (userByNewEmail.isPresent() && !userByNewEmail.get().getId().equals(userId)) {
-                    throw new RuntimeException("Error: Email " + newEmail + " is already in use by another account.");
-                }
-                existingUser.setEmail(newEmail);
-            }
-        }
         existingUser.setEnabled(updatedUser.isEnabled());
         existingUser.setAccountNoExpired(updatedUser.isAccountNoExpired());
         existingUser.setAccountNoLocked(updatedUser.isAccountNoLocked());
@@ -173,7 +163,7 @@ public class UserServiceImpl implements UserService {
 	             "¡Hola %s!\n\n" +
 	             "Has solicitado un código para restablecer tu contraseña en Chrono's Diary.\n\n" +
 	             "Tu código de restablecimiento es: %s\n\n" +
-	             "Por favor, usa este código para completar el proceso. (Nota: La validación y uso de este código NO están implementados en esta versión simple).",
+	             "Por favor, usa este código para completar el proceso.",
 	             user.getUsername() != null ? user.getUsername() : "Usuario",
 	             resetCodeString
 	         );
