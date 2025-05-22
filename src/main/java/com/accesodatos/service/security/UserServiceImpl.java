@@ -43,6 +43,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDto createUser(UserRequestDto userRequestDto) {
+    	if (userRepository.findUserEntityByEmail(userRequestDto.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("El email ya está registrado.");
+        }
         UserEntity user = userMapper.toUser(userRequestDto);
         user.setPassword(passwordEncoder.encode(userRequestDto.getPassword()));
 
@@ -109,12 +112,18 @@ public class UserServiceImpl implements UserService {
         return mapUserEntityToDtoWithRoles(savedUser);
     }
 
+ 
     @Override
     public void deleteUser(Long userId) {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User with id: " + userId + " not found"));
+
+        user.getRoles().clear();
+        user.getEvents().clear(); 
+
         userRepository.delete(user);
     }
+
     
     private UserResponseDto mapUserEntityToDtoWithRoles(UserEntity userEntity) {
         UserResponseDto userResponseDto = userMapper.toUserResponse(userEntity);
