@@ -92,6 +92,16 @@ public class UserServiceImpl implements UserService {
         if (userRequestDto.getPassword() != null && !userRequestDto.getPassword().isEmpty()) {
             existingUser.setPassword(passwordEncoder.encode(userRequestDto.getPassword()));
         }
+        if (userRequestDto.getEmail() != null && !userRequestDto.getEmail().trim().isEmpty()) {
+            String newEmail = userRequestDto.getEmail().trim();
+            if (!newEmail.equalsIgnoreCase(existingUser.getEmail())) {
+                Optional<UserEntity> userByNewEmail = userRepository.findUserEntityByEmail(newEmail);
+                if (userByNewEmail.isPresent() && !userByNewEmail.get().getId().equals(userId)) {
+                    throw new RuntimeException("Error: Email " + newEmail + " is already in use by another account.");
+                }
+                existingUser.setEmail(newEmail);
+            }
+        }
         existingUser.setEnabled(updatedUser.isEnabled());
         existingUser.setAccountNoExpired(updatedUser.isAccountNoExpired());
         existingUser.setAccountNoLocked(updatedUser.isAccountNoLocked());
@@ -111,7 +121,6 @@ public class UserServiceImpl implements UserService {
         UserEntity savedUser = userRepository.save(existingUser);
         return mapUserEntityToDtoWithRoles(savedUser);
     }
-
  
     @Override
     public void deleteUser(Long userId) {
