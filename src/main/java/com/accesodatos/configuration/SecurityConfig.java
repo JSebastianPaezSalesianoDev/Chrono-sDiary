@@ -38,9 +38,7 @@ public class SecurityConfig {
 																		"/doc/swagger-ui/**",
 																		"/doc/swagger-ui.html",
 																		"/v3/api-docs/**").permitAll() 
-				.requestMatchers(HttpMethod.GET, "/api/v1/city/ping").hasAnyRole("USER","DEVELOPER","ADMIN","INVITED")
-				.requestMatchers(HttpMethod.GET, "/api/v1/banks/ping").hasAnyRole("USER","DEVELOPER","ADMIN","INVITED")
-				.requestMatchers(HttpMethod.GET, "/api/v1/customers/ping").hasAnyRole("USER","DEVELOPER","ADMIN","INVITED")
+
 				.requestMatchers(HttpMethod.GET, "/api/v1/auth/ping").hasAnyRole("USER","DEVELOPER","ADMIN","INVITED")
 				.requestMatchers(HttpMethod.GET, "/api/v1/roles/ping").hasAnyRole("USER","DEVELOPER","ADMIN","INVITED")
 				.requestMatchers(HttpMethod.GET, "/api/v1/users/ping").hasAnyRole("USER","DEVELOPER","ADMIN","INVITED")
