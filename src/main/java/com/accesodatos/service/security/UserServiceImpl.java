@@ -43,9 +43,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDto createUser(UserRequestDto userRequestDto) {
-    	if (userRepository.findUserEntityByEmail(userRequestDto.getEmail()).isPresent()) {
-            throw new IllegalArgumentException("El email ya está registrado.");
-        }
         UserEntity user = userMapper.toUser(userRequestDto);
         user.setPassword(passwordEncoder.encode(userRequestDto.getPassword()));
 
@@ -92,16 +89,6 @@ public class UserServiceImpl implements UserService {
         if (userRequestDto.getPassword() != null && !userRequestDto.getPassword().isEmpty()) {
             existingUser.setPassword(passwordEncoder.encode(userRequestDto.getPassword()));
         }
-        if (userRequestDto.getEmail() != null && !userRequestDto.getEmail().trim().isEmpty()) {
-            String newEmail = userRequestDto.getEmail().trim();
-            if (!newEmail.equalsIgnoreCase(existingUser.getEmail())) {
-                Optional<UserEntity> userByNewEmail = userRepository.findUserEntityByEmail(newEmail);
-                if (userByNewEmail.isPresent() && !userByNewEmail.get().getId().equals(userId)) {
-                    throw new RuntimeException("Error: Email " + newEmail + " is already in use by another account.");
-                }
-                existingUser.setEmail(newEmail);
-            }
-        }
         existingUser.setEnabled(updatedUser.isEnabled());
         existingUser.setAccountNoExpired(updatedUser.isAccountNoExpired());
         existingUser.setAccountNoLocked(updatedUser.isAccountNoLocked());
@@ -121,6 +108,7 @@ public class UserServiceImpl implements UserService {
         UserEntity savedUser = userRepository.save(existingUser);
         return mapUserEntityToDtoWithRoles(savedUser);
     }
+
  
     @Override
     public void deleteUser(Long userId) {
@@ -199,7 +187,39 @@ public class UserServiceImpl implements UserService {
 	     }
 	 }
 
-	    
+	    @Override
+	    public UserResponseDto toggleAdminRole(Long userId) {
+	        UserEntity user = userRepository.findById(userId)
+	                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+
+	        Role adminRole = roleRepository.findByName("ADMIN")
+	                .orElseThrow(() -> new ResourceNotFoundException("Role ADMIN not found. Ensure it exists in the database."));
+	        Role userRole = roleRepository.findByName("USER")
+	                .orElseThrow(() -> new ResourceNotFoundException("Role USER not found. Ensure it exists in the database."));
+
+	        Set<Role> currentRoles = user.getRoles();
+	        if (currentRoles == null) {
+	            currentRoles = new HashSet<>(); 
+	        }
+
+	        boolean userIsCurrentlyAdmin = currentRoles.contains(adminRole);
+
+	        if (userIsCurrentlyAdmin) {
+	            
+	            currentRoles.remove(adminRole);
+	            currentRoles.add(userRole); 
+	            System.out.println("INFO: User " + user.getUsername() + " (ID: " + userId + ") removed from ADMIN role, set to USER.");
+	        } else {
+	           
+	            currentRoles.add(adminRole);
+	            currentRoles.remove(userRole); 
+	            System.out.println("INFO: User " + user.getUsername() + " (ID: " + userId + ") granted ADMIN role.");
+	        }
+
+	        user.setRoles(currentRoles);
+	        UserEntity savedUser = userRepository.save(user);
+	        return mapUserEntityToDtoWithRoles(savedUser);
+	    }
 
 
 

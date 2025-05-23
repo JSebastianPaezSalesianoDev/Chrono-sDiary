@@ -20,8 +20,8 @@ import lombok.ToString;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(of = "id") // Based on id
-@ToString // Default toString should be fine as it has no complex associations
+@EqualsAndHashCode(of = "id") 
+@ToString
 @Entity
 @Table(name = "roles")
 public class Role {

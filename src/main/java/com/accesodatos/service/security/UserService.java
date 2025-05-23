@@ -14,4 +14,5 @@ public interface UserService {
     UserResponseDto updateUser(Long userId, UserRequestDto userRequestDto);
     void deleteUser(Long userId);
     void resetPassword(String email);
+    UserResponseDto toggleAdminRole(Long userId);
 }

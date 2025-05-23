@@ -106,4 +106,10 @@ public class UserController {
         return new ResponseEntity<>(response, HttpStatus.OK);
 
     }
+    
+    @PutMapping("/{userId}/toggle-admin")
+    public ResponseEntity<UserResponseDto> toggleUserAdminRole(@PathVariable Long userId) {
+        UserResponseDto updatedUser = userService.toggleAdminRole(userId);
+        return ResponseEntity.ok(updatedUser);
+    }
 }
