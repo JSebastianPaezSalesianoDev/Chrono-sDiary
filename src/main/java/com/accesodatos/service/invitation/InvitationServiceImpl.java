@@ -37,6 +37,9 @@ public class InvitationServiceImpl implements InvitationService {
     private EmailService emailService;
 
 
+    /**
+     * Crea una nueva invitación y envía un correo al usuario invitado.
+     */
     @Override
     public InvitationResponseDto createInvitation(InvitationRequestDto dto) {
         Invitation invitation = mapper.toInvitation(dto);
@@ -66,6 +69,9 @@ public class InvitationServiceImpl implements InvitationService {
     }
 
 
+    /**
+     * Actualiza el estado de una invitación existente.
+     */
     @Override
     public InvitationResponseDto updateInvitation(Long id, InvitationRequestDto dto) {
         Invitation invitation = invitationRepository.findById(id)
@@ -75,6 +81,9 @@ public class InvitationServiceImpl implements InvitationService {
         return mapper.toResponseDto(invitationRepository.save(invitation));
     }
 
+    /**
+     * Elimina una invitación por su ID.
+     */
     @Override
     public void deleteInvitation(Long id) {
         Invitation invitation = invitationRepository.findById(id)
@@ -82,6 +91,9 @@ public class InvitationServiceImpl implements InvitationService {
         invitationRepository.delete(invitation);
     }
 
+    /**
+     * Obtiene todas las invitaciones recibidas por un usuario.
+     */
     @Override
     public List<InvitationResponseDto> getAllInvitationsByUserId(Long userId) {
         UserEntity user = userRepository.findById(userId)

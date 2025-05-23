@@ -24,6 +24,11 @@ import com.accesodatos.dto.security.UserResponseDto;
 import com.accesodatos.service.security.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
@@ -37,13 +42,18 @@ public class UserController {
     @Autowired
     private UserService userService;	
     @GetMapping("/ping")
+    @Operation(summary = "Ping endpoint for User", description = "Returns pong...")
 	public ResponseEntity<String> pong() {
 		return ResponseEntity.ok("pong...");
 	}
     
-
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)	
-    @Operation(summary = "Create a new user")
+    @Operation(summary = "Create a new user", description = "Registers a new user in the system")
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "User created successfully",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = UserResponseDto.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid input", content = @Content)
+    })
     public ResponseEntity<ApiResponseDto<UserResponseDto>> createUser(@Valid @RequestBody UserRequestDto userRequestDto) {
         UserResponseDto createdUser = userService.createUser(userRequestDto);
         ApiResponseDto<UserResponseDto> response = new ApiResponseDto<>("User created successfully", HttpStatus.CREATED.value(), createdUser);
@@ -51,15 +61,25 @@ public class UserController {
     }
 
     @GetMapping(value = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "Get user by ID")
-    public ResponseEntity<ApiResponseDto<UserResponseDto>> getUserById(@PathVariable Long userId) {
+    @Operation(summary = "Get user by ID", description = "Fetch a user by their ID")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "User fetched successfully",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = UserResponseDto.class))),
+        @ApiResponse(responseCode = "404", description = "User not found", content = @Content)
+    })
+    public ResponseEntity<ApiResponseDto<UserResponseDto>> getUserById(
+        @Parameter(description = "User ID", required = true) @PathVariable Long userId) {
         UserResponseDto user = userService.getUserById(userId);
         ApiResponseDto<UserResponseDto> response = new ApiResponseDto<>("User fetched successfully", HttpStatus.OK.value(), user);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "Get all users")
+    @Operation(summary = "Get all users", description = "Fetch all users in the system")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Users fetched successfully",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = UserResponseDto.class)))
+    })
     public ResponseEntity<ApiResponseDto<List<UserResponseDto>>> getAllUsers() {
         List<UserResponseDto> users = userService.getAllUsers();
         ApiResponseDto<List<UserResponseDto>> response = new ApiResponseDto<>("Users fetched successfully", HttpStatus.OK.value(), users);
@@ -67,24 +87,39 @@ public class UserController {
     }
 
     @PutMapping(value = "/{userId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "Update an existing user")
-    public ResponseEntity<ApiResponseDto<UserResponseDto>> updateUser(@PathVariable Long userId, @Valid @RequestBody UserRequestDto userRequestDto) {
+    @Operation(summary = "Update an existing user", description = "Updates a user's information")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "User updated successfully",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = UserResponseDto.class))),
+        @ApiResponse(responseCode = "404", description = "User not found", content = @Content)
+    })
+    public ResponseEntity<ApiResponseDto<UserResponseDto>> updateUser(
+        @Parameter(description = "User ID", required = true) @PathVariable Long userId,
+        @Valid @RequestBody UserRequestDto userRequestDto) {
         UserResponseDto updatedUser = userService.updateUser(userId, userRequestDto);
         ApiResponseDto<UserResponseDto> response = new ApiResponseDto<>("User updated successfully", HttpStatus.OK.value(), updatedUser);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @DeleteMapping(value = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "Delete a user")
-    public ResponseEntity<ApiResponseDto<Void>> deleteUser(@PathVariable Long userId) {
+    @Operation(summary = "Delete a user", description = "Deletes a user by their ID")
+    @ApiResponses({
+        @ApiResponse(responseCode = "204", description = "User deleted successfully"),
+        @ApiResponse(responseCode = "404", description = "User not found", content = @Content)
+    })
+    public ResponseEntity<ApiResponseDto<Void>> deleteUser(
+        @Parameter(description = "User ID", required = true) @PathVariable Long userId) {
         userService.deleteUser(userId);
         ApiResponseDto<Void> response = new ApiResponseDto<>("User deleted successfully", HttpStatus.NO_CONTENT.value(), null);
         return new ResponseEntity<>(response, HttpStatus.NO_CONTENT);
     }
     
-    
     @GetMapping(value = "/event",produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "Get all events")
+    @Operation(summary = "Get all events for all users", description = "Fetch all events for all users")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "User's events fetched successfully",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = UserEventsResponse.class)))
+    })
     public ResponseEntity<ApiResponseDto<List<UserEventsResponse>>> getUserEvents() {
         List<UserEventsResponse> events = userService.getUserEvents();
         ApiResponseDto<List<UserEventsResponse>> response = new ApiResponseDto<>("User's events fetched successfully", HttpStatus.OK.value(), events);
@@ -92,7 +127,11 @@ public class UserController {
     }
     
     @PostMapping(value = "/reset-password", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "Request password reset for a user via email")
+    @Operation(summary = "Request password reset for a user via email", description = "Sends a password reset code to the user's email")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Password reset email sent"),
+        @ApiResponse(responseCode = "400", description = "Email is required", content = @Content)
+    })
     public ResponseEntity<ApiResponseDto<Void>> requestPasswordReset(
             @Valid @RequestBody PasswordResetRequest request) {
 
@@ -108,7 +147,14 @@ public class UserController {
     }
     
     @PutMapping("/{userId}/toggle-admin")
-    public ResponseEntity<UserResponseDto> toggleUserAdminRole(@PathVariable Long userId) {
+    @Operation(summary = "Toggle admin role for a user", description = "Grants or removes admin role for a user")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "User role toggled successfully",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = UserResponseDto.class))),
+        @ApiResponse(responseCode = "404", description = "User not found", content = @Content)
+    })
+    public ResponseEntity<UserResponseDto> toggleUserAdminRole(
+        @Parameter(description = "User ID", required = true) @PathVariable Long userId) {
         UserResponseDto updatedUser = userService.toggleAdminRole(userId);
         return ResponseEntity.ok(updatedUser);
     }

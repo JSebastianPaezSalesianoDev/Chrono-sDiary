@@ -41,6 +41,9 @@ public class UserServiceImpl implements UserService {
     @Autowired 
     private EmailService emailService;
 
+    /**
+     * Crea un nuevo usuario y le asigna roles.
+     */
     @Override
     public UserResponseDto createUser(UserRequestDto userRequestDto) {
         UserEntity user = userMapper.toUser(userRequestDto);
@@ -65,6 +68,9 @@ public class UserServiceImpl implements UserService {
         return mapUserEntityToDtoWithRoles(savedUser); 
     }
 
+    /**
+     * Obtiene un usuario por su ID.
+     */
     @Override
     public UserResponseDto getUserById(Long userId) {
         UserEntity user = userRepository.findById(userId)
@@ -72,6 +78,9 @@ public class UserServiceImpl implements UserService {
         return mapUserEntityToDtoWithRoles(user);
     }
 
+    /**
+     * Obtiene todos los usuarios registrados.
+     */
     @Override
     public List<UserResponseDto> getAllUsers() {
         return userRepository.findAll().stream()
@@ -79,6 +88,9 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Actualiza los datos de un usuario existente.
+     */
     @Override
     public UserResponseDto updateUser(Long userId, UserRequestDto userRequestDto) {
         UserEntity existingUser = userRepository.findById(userId)
@@ -107,6 +119,9 @@ public class UserServiceImpl implements UserService {
         return mapUserEntityToDtoWithRoles(savedUser);
     }
  
+    /**
+     * Elimina un usuario por su ID.
+     */
     @Override
     public void deleteUser(Long userId) {
         UserEntity user = userRepository.findById(userId)
@@ -118,7 +133,9 @@ public class UserServiceImpl implements UserService {
         userRepository.delete(user);
     }
 
-    
+    /**
+     * Mapea un UserEntity a UserResponseDto incluyendo los roles.
+     */
     private UserResponseDto mapUserEntityToDtoWithRoles(UserEntity userEntity) {
         UserResponseDto userResponseDto = userMapper.toUserResponse(userEntity);
         if (userEntity.getRoles() != null) {
@@ -130,13 +147,18 @@ public class UserServiceImpl implements UserService {
         return userResponseDto;
     }
 
+    /**
+     * Obtiene todos los eventos de todos los usuarios.
+     */
 	@Override
 	public List<UserEventsResponse> getUserEvents() {
 		return userRepository.findAll().stream()
 				.map(userMapper::toUserEventsResponse).collect(Collectors.toList());
 	}
 
-	  
+    /**
+     * Restablece la contraseña de un usuario y envía un código por email.
+     */
 	 @Override
 	 public void resetPassword(String email) {
 	     if (email == null || email.trim().isEmpty()) {
@@ -184,6 +206,9 @@ public class UserServiceImpl implements UserService {
 	     }
 	 }
 
+    /**
+     * Alterna el rol de admin para un usuario (añade o quita el rol ADMIN).
+     */
 	    @Override
 	    public UserResponseDto toggleAdminRole(Long userId) {
 	        UserEntity user = userRepository.findById(userId)

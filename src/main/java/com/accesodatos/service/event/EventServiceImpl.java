@@ -43,6 +43,9 @@ public class EventServiceImpl implements EventService {
 
     @Autowired 
     private EmailService emailService;
+    /**
+     * Crea un nuevo evento y envía invitaciones por email a los usuarios invitados.
+     */
     @Override
     @Transactional
     public EventResponseDto createEvent(EventRequestDto eventRequestDto) {
@@ -119,6 +122,9 @@ public class EventServiceImpl implements EventService {
 
         return eventMapper.toEventResponse(savedEvent);
     }
+	/**
+	 * Obtiene todos los eventos asociados a un usuario (creados y aceptados).
+	 */
 	@Override
 	public List<EventResponseDto> getAllSimpleEventsByUserId(Long userId) {
         UserEntity user = userRepository.findById(userId)
@@ -141,6 +147,9 @@ public class EventServiceImpl implements EventService {
                 .collect(Collectors.toList());
     }
 
+	/**
+	 * Elimina un evento por su ID.
+	 */
 	@Override
 	public void deleteEvent(Long id) {
 		EventEntity event = eventRepository.findById(id)
@@ -149,6 +158,9 @@ public class EventServiceImpl implements EventService {
 		eventRepository.delete(event);
 	}
 
+	/**
+	 * Actualiza los datos de un evento existente.
+	 */
 	@Override
 	public EventResponseDto updateEvent(Long id, EventRequestDto eventRequestDto) {
 		EventEntity event = eventRepository.findById(id)
@@ -163,6 +175,9 @@ public class EventServiceImpl implements EventService {
 		
 		return eventMapper.toEventResponse(updatedEvent);
 	}
+	/**
+	 * Obtiene un evento simple por su ID.
+	 */
 	@Override
     public EventSimpleResponseDto getEventById(Long eventId) {
         EventEntity event = eventRepository.findById(eventId)

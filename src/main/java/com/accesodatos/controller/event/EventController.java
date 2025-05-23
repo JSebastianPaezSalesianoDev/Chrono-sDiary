@@ -23,10 +23,18 @@ import com.accesodatos.service.event.EventServiceImpl;
 
 import org.springframework.http.HttpStatus;
 import jakarta.validation.Valid;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/api")
 @CrossOrigin(origins = "http://localhost:5173/")
+@Tag(name = "Event", description = "Controller for managing events")
 public class EventController {	
 	
 	private static final String  EVENT_RESOURCE = "/event";
@@ -39,12 +47,20 @@ public class EventController {
 	EventServiceImpl eventServiceImpl;
 	
 	@GetMapping(EVENT_RESOURCE + "/ping")
+	@Operation(summary = "Ping endpoint for Event", description = "Returns pong event...")
 	public ResponseEntity<String> pong() {
 		return ResponseEntity.ok("pong event...");
 	}
 	
 	@GetMapping(value = EVENT_USER, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<ApiResponseDto<EventSimpleResponseDto>> getEventById(@PathVariable Long id){
+	@Operation(summary = "Get event by ID", description = "Fetch a single event by its ID")
+	@ApiResponses({
+		@ApiResponse(responseCode = "200", description = "Event fetched successfully",
+			content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = EventSimpleResponseDto.class))),
+		@ApiResponse(responseCode = "404", description = "Event not found", content = @Content)
+	})
+	public ResponseEntity<ApiResponseDto<EventSimpleResponseDto>> getEventById(
+		@Parameter(description = "ID of the event to fetch", required = true) @PathVariable Long id){
 		EventSimpleResponseDto event = eventServiceImpl.getEventById(id);
 		ApiResponseDto<EventSimpleResponseDto> response = new ApiResponseDto<>("Event fetched successfully", 
 											HttpStatus.OK.value(), event);
@@ -52,6 +68,12 @@ public class EventController {
 	}
 	
 	@PostMapping(value = EVENT_RESOURCE, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@Operation(summary = "Create a new event", description = "Creates a new event and sends invitations if provided")
+	@ApiResponses({
+		@ApiResponse(responseCode = "201", description = "Event created successfully",
+			content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = EventResponseDto.class))),
+		@ApiResponse(responseCode = "400", description = "Invalid input", content = @Content)
+	})
 	public ResponseEntity<ApiResponseDto<EventResponseDto>> createEvent(
 			@Valid @RequestBody EventRequestDto eventRequestDto) {
 		EventResponseDto createEvent = eventServiceImpl.createEvent(eventRequestDto);
@@ -61,7 +83,14 @@ public class EventController {
 	}
 	
 	@GetMapping(value = EVENT_USER + "/event", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<ApiResponseDto<List<EventResponseDto>>> getEventByUserId(@PathVariable Long id){
+	@Operation(summary = "Get all events by user ID", description = "Fetch all events created or accepted by a user")
+	@ApiResponses({
+		@ApiResponse(responseCode = "200", description = "Events fetched successfully",
+			content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = EventResponseDto.class))),
+		@ApiResponse(responseCode = "404", description = "User not found", content = @Content)
+	})
+	public ResponseEntity<ApiResponseDto<List<EventResponseDto>>> getEventByUserId(
+		@Parameter(description = "User ID", required = true) @PathVariable Long id){
 		List<EventResponseDto> events = eventServiceImpl.getAllSimpleEventsByUserId(id);
 		ApiResponseDto<List<EventResponseDto>> response = new ApiResponseDto<>("events fetched successfully", 
 											HttpStatus.OK.value(), events);
@@ -69,15 +98,28 @@ public class EventController {
 	}
 	
 	@DeleteMapping(value = EVENT_USER)
-	public ResponseEntity<Void> deleteEvent(@PathVariable Long id){
+	@Operation(summary = "Delete an event", description = "Deletes an event by its ID")
+	@ApiResponses({
+		@ApiResponse(responseCode = "204", description = "Event deleted successfully"),
+		@ApiResponse(responseCode = "404", description = "Event not found", content = @Content)
+	})
+	public ResponseEntity<Void> deleteEvent(
+		@Parameter(description = "ID of the event to delete", required = true) @PathVariable Long id){
 		eventServiceImpl.deleteEvent(id);
 		
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 	
 	@PutMapping(value = EVENT_USER, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<ApiResponseDto<EventResponseDto>> updateEvent(@PathVariable Long id,
-			@Valid @RequestBody EventRequestDto eventRequestDto) {
+	@Operation(summary = "Update an event", description = "Updates an existing event by its ID")
+	@ApiResponses({
+		@ApiResponse(responseCode = "200", description = "Event updated successfully",
+			content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = EventResponseDto.class))),
+		@ApiResponse(responseCode = "404", description = "Event not found", content = @Content)
+	})
+	public ResponseEntity<ApiResponseDto<EventResponseDto>> updateEvent(
+		@Parameter(description = "ID of the event to update", required = true) @PathVariable Long id,
+		@Valid @RequestBody EventRequestDto eventRequestDto) {
 		EventResponseDto eventUpdated  = eventServiceImpl.updateEvent(id, eventRequestDto);
 		ApiResponseDto<EventResponseDto> response = new ApiResponseDto<>("Event updated successfully",
 				HttpStatus.OK.value(), eventUpdated);

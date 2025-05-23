@@ -25,6 +25,9 @@ public class RoleServiceImpl implements RoleService {
 	@Autowired
 	private UserRepository userRepository;
 
+	/**
+	 * Crea un nuevo rol.
+	 */
 	@Override
 	public RoleResponseDto createRole(RoleRequestDto roleRequestDto) {
 		Role role = roleMapper.toRole(roleRequestDto);
@@ -32,6 +35,9 @@ public class RoleServiceImpl implements RoleService {
 		return roleMapper.toRoleResponseDto(savedRole);
 	}
 
+	/**
+	 * Obtiene un rol por su ID.
+	 */
 	@Override
 	public RoleResponseDto getRoleById(Long roleId) {
 		Role role = roleRepository.findById(roleId)
@@ -39,11 +45,17 @@ public class RoleServiceImpl implements RoleService {
 		return roleMapper.toRoleResponseDto(role);
 	}
 
+	/**
+	 * Obtiene todos los roles existentes.
+	 */
 	@Override
 	public List<RoleResponseDto> getAllRoles() {
 		return roleRepository.findAll().stream().map(roleMapper::toRoleResponseDto).collect(Collectors.toList());
 	}
 
+	/**
+	 * Actualiza el nombre de un rol existente.
+	 */
 	@Override
 	public RoleResponseDto updateRole(Long roleId, RoleRequestDto roleRequestDto) {
 		Role role = roleRepository.findById(roleId)
@@ -53,6 +65,9 @@ public class RoleServiceImpl implements RoleService {
 		return roleMapper.toRoleResponseDto(updatedRole);
 	}
 
+	/**
+	 * Elimina un rol si no está asociado a ningún usuario.
+	 */
 	@Override
     public void deleteRole(Long roleId) {
         Role role = roleRepository.findById(roleId)
